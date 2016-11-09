@@ -76,12 +76,15 @@ def get_uniques(files, output_dir, file_extension):
 
     print_progress(prog_count, total, prefix="[*] Progress:", suffix="Complete", bar_length=50)
     for _file in files:
-        hashed = sha256(_file).hexdigest()
+        with open(_file, "rb") as fh:
+            hashed = sha256(fh.read()).hexdigest()
         if hashed not in uniques.keys():
             uniques[hashed] = _file[:]
             shutil.copy(_file, os.path.join(output_dir, hashed + file_extension))
             count += 1
         prog_count += 1
-        print_progress(prog_count, total, prefix="[*] Progress:", suffix="Complete", bar_length=50)
+        print_progress(prog_count, total, prefix="[*] Progress:", suffix="Complete. [{:08d}/{}]".format(
+            count, prog_count
+        ), bar_length=50)
 
     return count
