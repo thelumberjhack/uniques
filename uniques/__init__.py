@@ -2,8 +2,33 @@
 import os
 import sys
 import shutil
+import multiprocessing
 from hashlib import sha256
 from fnmatch import filter
+
+
+class Hasher(multiprocessing.Process):
+
+    def __init__(self, task_queue, result_queue):
+        """
+        :param task_queue:
+        :param result_queue:
+        """
+        super(Hasher, self).__init__()
+        self.task_queue = task_queue
+        self.result_queue = result_queue
+
+    def run(self):
+        """
+        """
+        while True:
+            file_name = self.task_queue.get()
+            with open(file_name, "rb") as fh:
+                digest = sha256(fh.read()).hexdigest()
+
+            self.result_queue.put((file_name, digest))
+
+        return
 
 
 def list_files(input_dir, pattern):
